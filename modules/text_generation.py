@@ -43,7 +43,7 @@ def _generate_reply(question, state, stopping_strings=None, is_chat=False, escap
             yield ''
             return
 
-        if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'ExllamaModel', 'Exllamav2Model', 'CtransformersModel']:
+        if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'ExllamaModel', 'Exllamav2Model', 'CtransformersModel', 'MLC_LLM_Model']:
             generate_func = generate_reply_custom
         else:
             generate_func = generate_reply_HF
@@ -110,8 +110,10 @@ def encode(prompt, add_special_tokens=True, add_bos_token=True, truncation_lengt
     if shared.tokenizer is None:
         raise ValueError('No tokenizer is loaded')
 
-    if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'CtransformersModel', 'Exllamav2Model']:
+    if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'CtransformersModel', 'Exllamav2Model', 'MLC_LLM_Model']:
         input_ids = shared.tokenizer.encode(str(prompt))
+        if not isinstance(input_ids, list):
+            input_ids = input_ids.ids
         if shared.model.__class__.__name__ not in ['Exllamav2Model']:
             input_ids = np.array(input_ids).reshape(1, len(input_ids))
     else:
@@ -125,7 +127,7 @@ def encode(prompt, add_special_tokens=True, add_bos_token=True, truncation_lengt
     if truncation_length is not None:
         input_ids = input_ids[:, -truncation_length:]
 
-    if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'ExllamaModel', 'Exllamav2Model', 'CtransformersModel'] or shared.args.cpu:
+    if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'ExllamaModel', 'Exllamav2Model', 'CtransformersModel', 'MLC_LLM_Model'] or shared.args.cpu:
         return input_ids
     elif shared.args.deepspeed:
         return input_ids.to(device=local_rank)
@@ -383,12 +385,14 @@ def generate_reply_custom(question, original_question, seed, state, stopping_str
         if not is_chat:
             yield ''
 
-        if not state['stream']:
-            reply = shared.model.generate(question, state)
-            yield reply
-        else:
-            for reply in shared.model.generate_with_streaming(question, state):
-                yield reply
+        # if not state['stream']:
+        #     reply = shared.model.generate(question, state)
+        #     yield reply
+        # else:
+        #     for reply in shared.model.generate_with_streaming(question, state):
+        #         yield reply
+        reply = shared.model.generate(question, state)
+        yield reply
 
     except Exception:
         traceback.print_exc()

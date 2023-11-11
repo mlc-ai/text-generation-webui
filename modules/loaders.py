@@ -142,6 +142,9 @@ loaders_and_params = OrderedDict({
         'no_inject_fused_attention',
         'trust_remote_code',
         'use_fast',
+    ],
+    'mlc_llm': [
+        'temperature'
     ]
 })
 
@@ -445,6 +448,9 @@ loaders_samplers = {
         'skip_special_tokens',
         'auto_max_new_tokens',
     },
+    'mlc_llm': {
+        'temperature',
+    }
 }
 
 loaders_model_types = {

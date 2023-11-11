@@ -51,7 +51,7 @@ settings = {
     'custom_token_bans': '',
     'add_bos_token': True,
     'skip_special_tokens': True,
-    'stream': True,
+    'stream': False,
     'name1': 'You',
     'character': 'Assistant',
     'instruction_template': 'Alpaca',
