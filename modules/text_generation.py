@@ -385,14 +385,12 @@ def generate_reply_custom(question, original_question, seed, state, stopping_str
         if not is_chat:
             yield ''
 
-        # if not state['stream']:
-        #     reply = shared.model.generate(question, state)
-        #     yield reply
-        # else:
-        #     for reply in shared.model.generate_with_streaming(question, state):
-        #         yield reply
-        reply = shared.model.generate(question, state)
-        yield reply
+        if not state['stream']:
+            reply = shared.model.generate(question, state)
+            yield reply
+        else:
+            for reply in shared.model.generate_with_streaming(question, state):
+                yield reply
 
     except Exception:
         traceback.print_exc()
