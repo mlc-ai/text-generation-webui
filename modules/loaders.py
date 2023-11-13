@@ -144,7 +144,6 @@ loaders_and_params = OrderedDict({
         'use_fast',
     ],
     'mlc_llm': [
-        'temperature'
     ]
 })
 
@@ -450,6 +449,12 @@ loaders_samplers = {
     },
     'mlc_llm': {
         'temperature',
+        'top_p',
+        'repetition_penalty',
+        'presence_penalty',
+        'frequency_penalty',
+        'max_new_tokens',
+        'custom_stopping_strings'
     }
 }
 

@@ -24,18 +24,35 @@ class MLC_LLM_Model:
 
     def generate(self, prompt, state, callback=None):
         prompt = prompt if type(prompt) is str else prompt.decode()
-        # generation_config = mlc_chat.GenerationConfig(
-        #     temperature=state['temperature',
-        # )
-        output = self.model.generate(prompt=prompt)
+        generation_config = mlc_chat.GenerationConfig(
+            temperature=state['temperature'],
+            top_p=state['top_p'],
+            repetition_penalty=state['repetition_penalty'],
+            max_gen_len=state['max_new_tokens'],
+            presence_penalty=state['presence_penalty'],
+            frequency_penalty=state['frequency_penalty'],
+            stop=state['custom_stopping_strings'],
+            #TODO: n (num_return_sequence)    
+        )
+        output = self.model.generate(prompt=prompt, generation_config=generation_config)
         return output
 
     def generate_with_streaming(self, prompt, state, callback=None):
         prompt = prompt if type(prompt) is str else prompt.decode()
+        print(state.items())
         self.model._prefill(input=prompt)
-
+        generation_config = mlc_chat.GenerationConfig(
+            temperature=state['temperature'],
+            top_p=state['top_p'],
+            repetition_penalty=state['repetition_penalty'],
+            max_gen_len=state['max_new_tokens'],
+            presence_penalty=state['presence_penalty'],
+            frequency_penalty=state['frequency_penalty'],
+            stop=state['custom_stopping_strings'],
+            #TODO: n (num_return_sequence)    
+        )
         while not self.model._stopped():
-            self.model._decode()
+            self.model._decode(generation_config=generation_config)
             content = self.model._get_message()
             if content:
                 # Remove the replacement character (U+FFFD) from the response
