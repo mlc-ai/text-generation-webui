@@ -43,7 +43,7 @@ def _generate_reply(question, state, stopping_strings=None, is_chat=False, escap
             yield ''
             return
 
-        if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'ExllamaModel', 'Exllamav2Model', 'CtransformersModel', 'MLC_LLM_Model']:
+        if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'ExllamaModel', 'Exllamav2Model', 'CtransformersModel', 'MLCChatModel']:
             generate_func = generate_reply_custom
         else:
             generate_func = generate_reply_HF
@@ -110,7 +110,7 @@ def encode(prompt, add_special_tokens=True, add_bos_token=True, truncation_lengt
     if shared.tokenizer is None:
         raise ValueError('No tokenizer is loaded')
 
-    if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'CtransformersModel', 'Exllamav2Model', 'MLC_LLM_Model']:
+    if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'CtransformersModel', 'Exllamav2Model', 'MLCChatModel']:
         input_ids = shared.tokenizer.encode(str(prompt))
         if not isinstance(input_ids, list):
             input_ids = input_ids.ids
@@ -127,7 +127,7 @@ def encode(prompt, add_special_tokens=True, add_bos_token=True, truncation_lengt
     if truncation_length is not None:
         input_ids = input_ids[:, -truncation_length:]
 
-    if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'ExllamaModel', 'Exllamav2Model', 'CtransformersModel', 'MLC_LLM_Model'] or shared.args.cpu:
+    if shared.model.__class__.__name__ in ['LlamaCppModel', 'RWKVModel', 'ExllamaModel', 'Exllamav2Model', 'CtransformersModel', 'MLCChatModel'] or shared.args.cpu:
         return input_ids
     elif shared.args.deepspeed:
         return input_ids.to(device=local_rank)

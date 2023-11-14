@@ -143,7 +143,7 @@ loaders_and_params = OrderedDict({
         'trust_remote_code',
         'use_fast',
     ],
-    'mlc_llm': [
+    'MLCChat': [
     ]
 })
 
@@ -447,7 +447,7 @@ loaders_samplers = {
         'skip_special_tokens',
         'auto_max_new_tokens',
     },
-    'mlc_llm': {
+    'MLCChat': {
         'temperature',
         'top_p',
         'repetition_penalty',

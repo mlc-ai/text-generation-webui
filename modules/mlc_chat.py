@@ -4,7 +4,7 @@ import mlc_chat
 
 from modules import shared
 
-class MLC_LLM_Model:
+class MLCChatModel:
     def __init__(self):
         pass
 
@@ -39,7 +39,6 @@ class MLC_LLM_Model:
 
     def generate_with_streaming(self, prompt, state, callback=None):
         prompt = prompt if type(prompt) is str else prompt.decode()
-        print(state.items())
         self.model._prefill(input=prompt)
         generation_config = mlc_chat.GenerationConfig(
             temperature=state['temperature'],

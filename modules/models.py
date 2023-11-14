@@ -73,7 +73,7 @@ def load_model(model_name, loader=None):
         'ExLlamav2_HF': ExLlamav2_HF_loader,
         'ctransformers': ctransformers_loader,
         'AutoAWQ': AutoAWQ_loader,
-        'mlc_llm': mlc_llm_loader
+        'MLCChat': mlc_chat_loader
     }
 
     if loader is None:
@@ -162,10 +162,10 @@ def load_mlc_tokenizer(model_name):
     raise ValueError(f"Cannot find any tokenizer under: {path}")
 
 
-def mlc_llm_loader(model_name):
-    from modules.mlc_llm import MLC_LLM_Model
+def mlc_chat_loader(model_name):
+    from modules.mlc_chat import MLCChatModel
 
-    return MLC_LLM_Model.from_pretrained(model_name)
+    return MLCChatModel.from_pretrained(model_name)
 
 
 def huggingface_loader(model_name):
