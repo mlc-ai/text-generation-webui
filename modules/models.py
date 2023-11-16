@@ -2,6 +2,7 @@ import gc
 import os
 import re
 import time
+import json
 import traceback
 from pathlib import Path
 
@@ -18,6 +19,9 @@ from transformers import (
     BitsAndBytesConfig,
     GPTQConfig
 )
+from tokenizers.models import BPE
+from tokenizers import Tokenizer
+from tokenizers import SentencePieceUnigramTokenizer
 
 import modules.shared as shared
 from modules import RoPE, llama_attn_hijack, sampler_hijack
@@ -69,6 +73,7 @@ def load_model(model_name, loader=None):
         'ExLlamav2_HF': ExLlamav2_HF_loader,
         'ctransformers': ctransformers_loader,
         'AutoAWQ': AutoAWQ_loader,
+        'MLCChat': mlc_chat_loader
     }
 
     metadata = get_model_metadata(model_name)
@@ -86,9 +91,12 @@ def load_model(model_name, loader=None):
     if type(output) is tuple:
         model, tokenizer = output
     else:
+        print(model_name)
         model = output
         if model is None:
             return None, None
+        elif True:
+            tokenizer = load_mlc_tokenizer(model_name)
         else:
             tokenizer = load_tokenizer(model_name, model)
 
@@ -117,6 +125,49 @@ def load_tokenizer(model_name, model):
         )
 
     return tokenizer
+
+
+def load_mlc_tokenizer(model_name):
+    path = os.path.join(shared.args.model_dir, model_name)
+    sentencepiece = os.path.join(path, "tokenizer.model")
+    huggingface = os.path.join(path, "tokenizer.json")
+    rwkvworld = os.path.join(path, "tokenizer_model")
+    if os.path.exists(path):
+        if os.path.isdir(path):
+            # Check ByteLevelBPE
+            merges_path = os.path.join(path, "merges.txt")
+            vocab_path = os.path.join(path, "vocab.json")
+            added_tokens_path = os.path.join(path, "added_tokens.json")
+            if os.path.exists(merges_path) and os.path.exists(vocab_path) and os.path.exists(added_tokens_path):
+                with open(vocab_path, "r") as f:
+                    vocab = json.load(f)
+                with open(added_tokens_path, "r") as f:
+                    added_tokens = json.load(f)
+                vocab.update(added_tokens)
+                with open(merges_path, "r") as f:
+                    merges = f.read()
+                
+                return BPE(vocab=vocab, merges=merges)
+        else:
+            sentencepiece = os.path.join(os.path.dirname(path), "tokenizer.model")
+            huggingface = os.path.join(os.path.dirname(path), "tokenizer.json")
+            rwkvworld = os.path.join(os.path.dirname(path), "tokenizer_model")
+    if os.path.exists(huggingface):
+        with open(huggingface, "rb") as f:
+            return Tokenizer.from_file(huggingface)
+    if os.path.exists(sentencepiece):
+        with open(sentencepiece, "rb") as f:
+            raise NotImplementedError("SentencePiece tokenizer is not implemented yet.") # TODO: implement this
+    if os.path.exists(rwkvworld):
+        with open(rwkvworld, "rb") as f:
+            raise NotImplementedError("RWKVWorld tokenizer is not implemented yet.") # TODO: implement this
+    raise ValueError(f"Cannot find any tokenizer under: {path}")
+
+
+def mlc_chat_loader(model_name):
+    from modules.mlc_chat import MLCChatModel
+
+    return MLCChatModel.from_pretrained(model_name)
 
 
 def huggingface_loader(model_name):

@@ -143,6 +143,8 @@ loaders_and_params = OrderedDict({
         'no_inject_fused_attention',
         'trust_remote_code',
         'use_fast',
+    ],
+    'MLCChat': [
     ]
 })
 
@@ -446,6 +448,15 @@ loaders_samplers = {
         'skip_special_tokens',
         'auto_max_new_tokens',
     },
+    'MLCChat': {
+        'temperature',
+        'top_p',
+        'repetition_penalty',
+        'presence_penalty',
+        'frequency_penalty',
+        'max_new_tokens',
+        'custom_stopping_strings'
+    }
 }
 
 loaders_model_types = {
